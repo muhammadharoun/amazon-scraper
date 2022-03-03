@@ -1,0 +1,12 @@
+{
+    "options":{
+        "min_price":0,
+        "max_price":100,
+        "min_review":1,
+        "max_review":50,
+        "min_rate":4,
+        "pages":2
+        
+    }
+}
+
