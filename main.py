@@ -3,16 +3,16 @@ from bs4 import BeautifulSoup
 import requests
 from csv import writer
 import json
-
+import urllib.parse
+from time import sleep
 #  lxml
 # configurations 
-config = json.load(open('config.json'))
-
+config = json.load(open('config.json','r',encoding='utf-8-sig'))
 
 # function catch all product from amazon and save in csv
-def get_amazon_products(URL): # ,price,rate,review
+def get_amazon_products(URL,File): # ,price,rate,review
     # opening our output file in append mode
-    File = open('out.csv', 'a', newline='',encoding='utf-8-sig')
+    
     HEADERS = ({'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64)  AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5'})
     
 
@@ -22,7 +22,6 @@ def get_amazon_products(URL): # ,price,rate,review
     soup = BeautifulSoup(webpage.content, "lxml")
     try:
         cards = soup.find_all("div", attrs={"class": 's-card-container'})
-        add_titles(File,['title','price','review','rate','link'])
         product_data = []
         for ele in cards:
             #  get title 
@@ -71,28 +70,37 @@ def get_amazon_products(URL): # ,price,rate,review
     except AttributeError:
         title_string = "NA"
 
-    File.close()
+    
 def add_titles(File,titles):
     writer_object = writer(File)
     writer_object.writerow(titles)   
  
 
-if __name__ == '__main__':
+def run_code():
     print('''
     - select || 1 || if to catch product 
     - select || 2 || if to update data 
     ''')
     input_val = input('    # => ')
     if input_val == '1': 
-        get_amazon_products('https://www.amazon.sa/s?k=%D9%85%D9%84%D8%A7%D8%A8%D8%B3+%D8%B9%D9%84%D9%88%D9%8A%D8%A9+%D9%88%D8%AA%D9%8A+%D8%B4%D9%8A%D8%B1%D8%AA%D8%A7%D8%AA+%D9%88+%D9%82%D9%85%D8%B5%D8%A7%D9%86+%D9%84%D9%84%D8%B1%D8%AC%D8%A7%D9%84&crid=2QBTBCCTU3O5G&sprefix=%D9%85%D9%84%D8%A7%D8%A8%D8%B3+%D8%B9%D9%84%D9%88%D9%8A%D8%A9+%D9%88%D8%AA%D9%8A+%D8%B4%D9%8A%D8%B1%D8%AA%D8%A7%D8%AA+%D9%88+%D9%82%D9%85%D8%B5%D8%A7%D9%86+%D9%84%D9%84%D8%B1%D8%AC%D8%A7%D9%84%2Caps%2C124&ref=nb_sb_noss_1')
-
+        File = open('out.csv', 'a', newline='',encoding='utf-8-sig')
+        add_titles(File,['title','price','review','rate','link'])
+        keyword = urllib.parse.quote(config['options']['keywords'])
+        for page in range(config['options']['pages']):
+            get_amazon_products(f'https://www.amazon.sa/s?k={keyword}&page={page}',File)
+            print(f'https://www.amazon.sa/s?k={keyword}&page={page}')
+            sleep(float(config["external_options"]['sleep']))
     elif input_val == '2':
         print('come soon')
     else:
         print('plz enter valid number')
 
+    File.close()
 
 
+
+if __name__ == '__main__':
+    run_code()
 
 
 
