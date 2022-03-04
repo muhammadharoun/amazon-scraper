@@ -7,10 +7,14 @@ import urllib.parse
 from time import sleep
 #  lxml
 # configurations 
-config = json.load(open('config.json','r',encoding='utf-8-sig'))
 
+
+def add_titles(File,titles):
+    writer_object = writer(File)
+    writer_object.writerow(titles)   
+ 
 # function catch all product from amazon and save in csv
-def get_amazon_products(URL,File): # ,price,rate,review
+def get_amazon_products(URL,File,min_price,max_price,min_rate,min_review,max_review): # ,
     # opening our output file in append mode
     
     HEADERS = ({'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64)  AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5'})
@@ -60,8 +64,10 @@ def get_amazon_products(URL,File): # ,price,rate,review
             product_data.append(review)
             product_data.append(rate)
             product_data.append(link)
-            # print('options',config['options']['min_price'],price,config['options']['max_price'])
-            if (config['options']['min_price'] < price < config['options']['max_price']) and (config['options']['min_review'] < review < config['options']['max_review']) and config['options']['min_rate'] < rate:
+
+
+
+            if ( min_price < price < max_price ) and ( min_review < review < max_review) and min_rate < rate:
                 
                 print('>>>> title')
                 writer_object = writer(File)
@@ -70,26 +76,37 @@ def get_amazon_products(URL,File): # ,price,rate,review
     except AttributeError:
         title_string = "NA"
 
-    
-def add_titles(File,titles):
-    writer_object = writer(File)
-    writer_object.writerow(titles)   
- 
+
+
+def getConfigData(option):
+    config = json.load(open('config.json','r',encoding='utf-8-sig'))
+
+    if option == 'options': 
+        return config['options']['min_price'] , config['options']['max_price'] , config['options']['min_review'] , config['options']['max_review'] , config['options']['min_rate'] , config['options']['keywords'] 
+    elif option == 'external_options': 
+        return config["external_options"]['file_name'] , config["external_options"]['sleep'] , config['options']['pages']
+def updata_stock(URL):
+    print(URL)
+
 
 def run_code():
+    min_price,max_price , min_review, max_review, min_rate, keywords = getConfigData('options')
+    file_name, sleep_time, pages = getConfigData('external_options')
+
     print('''
     - select || 1 || if to catch product 
     - select || 2 || if to update data 
     ''')
     input_val = input('    # => ')
     if input_val == '1': 
-        File = open('out.csv', 'a', newline='',encoding='utf-8-sig')
+
+        File = open(f'{file_name}.csv', 'a', newline='',encoding='utf-8-sig')
         add_titles(File,['title','price','review','rate','link'])
-        keyword = urllib.parse.quote(config['options']['keywords'])
-        for page in range(config['options']['pages']):
-            get_amazon_products(f'https://www.amazon.sa/s?k={keyword}&page={page}',File)
-            print(f'https://www.amazon.sa/s?k={keyword}&page={page}')
-            sleep(float(config["external_options"]['sleep']))
+        keyword = urllib.parse.quote(keywords)
+        for page in range(pages):
+            get_amazon_products(f'https://www.amazon.sa/s?k={keyword}&page={page}',File,min_price , max_price, min_rate, min_review, max_review )
+            
+            sleep(float(sleep_time))
     elif input_val == '2':
         print('come soon')
     else:

@@ -5,11 +5,13 @@
         "min_review":1,
         "max_review":50,
         "min_rate":4,
-        "pages":7,
         "keywords":"تي شيرت"
     },
     "external_options":{
-        "sleep":1
+        "sleep":1,
+        "file_name":"output",
+        "pages":7
+
     }
 }
 
