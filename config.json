@@ -1,16 +1,19 @@
 {
     "options":{
-        "min_price":0,
+        "min_price":5,
         "max_price":100,
         "min_review":1,
         "max_review":50,
         "min_rate":4,
-        "keywords":"تي شيرت"
+        "keywords":"تي شيرت",
+        "amazon_link":"https://www.amazon.sa"
     },
     "external_options":{
         "sleep":1,
-        "file_name":"output",
-        "pages":7
+        "output_name":"output",
+        "update_file":"update_file",
+        "start_pages":1,
+        "end_pages":10
 
     }
 }
